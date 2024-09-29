@@ -1,119 +1,70 @@
 ﻿name: Actions 😎
 
-on: [push, pull_request]
+# only run when pushed to master or main branches
+on:
+  push:
+    branches:
+      - master
+      - main
 
 jobs:
-  buildWebGL:
-    name: Build my project ✨
+  build:
+    name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
+    strategy: 
+      fail-fast: false
+      matrix:
+        targetPlatform: # uncomment some of the following lines to build for specific platform
+#          - StandaloneOSX # Build a macOS standalone (Intel 64-bit).
+#          - StandaloneWindows # Build a Windows standalone.
+#          - StandaloneWindows64 # Build a Windows 64-bit standalone.
+#          - StandaloneLinux64 # Build a Linux 64-bit standalone.
+#          - iOS # Build an iOS player.
+#          - Android # Build an Android .apk standalone app.
+          - WebGL # WebGL.
     steps:
       # Checkout
       - name: Checkout repository 🛒
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
-          lfs: true
-
-#      # Git LFS
-#      - name: Create LFS file list
-#        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
-#
-#      - name: Restore LFS cache
-#        uses: actions/cache@v2
-#        id: lfs-cache
-#        with:
-#          path: .git/lfs
-#          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
-#
-#      - name: Git LFS Pull
-#        run: |
-#          git lfs pull
-#          git add .
-#          git reset --hard
+          fetch-depth: 0
+          lfs: 'true'
 
       # Cache
       - name: Cache 💾
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-          restore-keys: |
-            Library-
+          key: Library-${{ matrix.targetPlatform }}
+          restore-keys: Library-
+
+      - if: matrix.targetPlatform == 'Android'
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       # Build
       - name: Build project 🔨
-        uses: game-ci/unity-builder@v2
+        uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-#          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-#          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          targetPlatform: WebGL
+          versioning: Semantic
+          targetPlatform: ${{ matrix.targetPlatform }}
+#          customImage: 'unityci/editor:2020.1.14f1-base-0'
           
+      # Deploy    
       - name: Deploy 🚀
+        if: matrix.targetPlatform == 'WebGL' # Deploy webgl build only for WebGL
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build/WebGL/WebGL # The folder the action should deploy.
           single-commit: true
           
-#      - name: GitHub Pages
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        # You may pin to the exact commit or the version.
-#        # uses: crazy-max/ghaction-github-pages@a117e4aa1fb4854d021546d2abdfac95be568a3a
-#        uses: crazy-max/ghaction-github-pages@v2.6.0
-#        with:
-#          # Git domain (default github.com)
-#          #domain: # optional, default is github.com
-#          # GitHub repository where assets will be deployed (default $GITHUB_REPOSITORY)
-#          #repo: # optional
-#          # Git branch where assets will be deployed
-#          #target_branch: # optional, default is gh-pages
-#          # Create incremental commit instead of doing push force
-#          #keep_history: # optional, default is false
-#          # Allow an empty commit to be created
-#          #allow_empty_commit: # optional, default is true
-#          # Build directory to deploy
-#          build_dir: bin-emscripten/bin/
-#          # Whether to treat build_dir as an absolute path
-#          #absolute_build_dir: # optional, default is false
-#          # If enabled, the content of symbolic links will be copied
-#          #follow_symlinks: # optional, default is false
-#          # The committer name and email address
-#          #committer: # optional
-#          # The author name and email address
-#          #author: # optional
-#          # Commit message
-#          #commit_message: # optional
-#          # Write the given domain name to the CNAME file
-#          #fqdn: # optional
-#          # Allow Jekyll to build your site
-#          #jekyll: # optional, default is true
-#          # If enabled, nothing will be pushed
-#          #dry_run: # optional, default is false
-#          # Enable verbose output
-#          #verbose: # optional, default is false    
+      # Archive artifacts    
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Build-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
 
-#      # Output
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          name: Build
-#          path: build
-          
-#  deployPages:
-#    needs: buildWebGL
-#    name: Deploy to Github Pages 🚀
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#
-#      - uses: actions/download-artifact@v2
-#        with:
-#          name: build-WebGL
-#          path: build
-#
-#      - name: Deploy 🚀
-#        uses: JamesIves/github-pages-deploy-action@4.1.4
-#        with:
-#          branch: gh-pages
-#          folder: build/WebGL          
+    
