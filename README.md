@@ -9,6 +9,7 @@ WebGL published here (EDIT IT!) https://YOUR_GH_USERNAME.github.io/YOUR_REPO_NAM
 - [ ] I have edited the README.md file to include my own information on the url for the web build;
 - [ ] I have followed the instructions to activate my personal licence here: https://game.ci/docs/github/activation/ ;
     - [ ] If I chose to make the repository private, I will follow this guide to add the instructor as a collaborator. https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-user-account/managing-access-to-your-personal-repositories/inviting-collaborators-to-a-personal-repository and set up the keys here https://game.ci/docs/github/builder/#private-github-repositories
+- [ ] I have visited the `Settings` > `Secrets and Variables` > `Actions`;
 - [ ] I have added the `UNITY_LICENSE` secret to my repository with the Unity license key;
 - [ ] I have added the `UNITY_USERNAME` secret to my repository with the Unity username;
 - [ ] I have added the `UNITY_PASSWORD` secret to my repository with the Unity password;
