@@ -17,9 +17,9 @@ WebGL published here (EDIT IT!) https://YOUR_GH_USERNAME.github.io/YOUR_REPO_NAM
 - [ ] I cloned the repository to my local machine and opened the project in Unity and made changes to the project;
 - [ ] I have committed and pushed the changes to the `main` or `master` branch of the repository;
 - [ ] I understand that every time I push to the `main` or `master` branch, the project will be built and deployed to the `gh-pages` branch;
-- [ ] I saw the GitHub Actions build the project;
-- [ ] I changed the `Settings` > `Pages` > `Source` to `gh-pages` branch;
-- [ ] I saw the GitHub Actions deploy the project to the `gh-pages` branch;
+- [ ] I saw and waited the GitHub Actions build the project;
+- [ ] I saw and waited the GitHub Actions deploy the project to the `gh-pages` branch;
+- [ ] I changed the `Settings` > `Pages` > `Source` to `gh-pages` branch. It only appears as a choice if you wait for the action to finish.
 - [ ] I can open the web build in the browser at the url: https://YOUR_GH_USERNAME.github.io/YOUR_REPO_NAME/
 - [ ] I have read the https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow and understand the Gitflow workflow;
 - [ ] I understand that I should create a new branch for each feature or fix I am working on;
