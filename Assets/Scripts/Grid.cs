@@ -26,7 +26,6 @@ public class Grid : MonoBehaviour
         }
     }
 
-
     void CreateGhostObject()
     {
         ghostObject = Instantiate(wall);
@@ -63,7 +62,6 @@ public class Grid : MonoBehaviour
                 Mathf.Round(point.x/gridSize) * gridSize, 
                 Mathf.Round(point.y/gridSize) * gridSize, 
                 Mathf.Round(point.z/gridSize) * gridSize);
-
             
             ghostObject.transform.position = snappedPosition;
 
