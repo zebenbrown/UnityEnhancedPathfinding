@@ -14,6 +14,7 @@ namespace DefaultNamespace
         private HashSet<Vector3> occupiedTiles = new HashSet<Vector3>();
         [SerializeField] private Material[] materials;
         private GameObject previewWall;
+        private bool isVerticalWall = false;
 
         void Start()
         {
@@ -32,6 +33,20 @@ namespace DefaultNamespace
         private void Update()
         {
             UpdateWallPosition();
+
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                if (isVerticalWall)
+                {
+                    previewWall.transform.rotation = Quaternion.identity;
+                    isVerticalWall = false;
+                }
+                else
+                {
+                    previewWall.transform.rotation = Quaternion.Euler(0, 90, 0);
+                    isVerticalWall = true;
+                }
+            }
 
             if (Input.GetMouseButtonDown(0))
             {
@@ -77,6 +92,8 @@ namespace DefaultNamespace
                     Mathf.Round(spawnPosition.z / cellSize) * cellSize);
                 
                 previewWall.transform.position = snappedPosition;
+                Vector3 nextTileRight = previewWall.transform.position + new Vector3(cellSize, 0, 0);
+                Debug.Log("Tile to right: " + nextTileRight);
                 
                 if (occupiedTiles.Contains(snappedPosition))
                 {
@@ -103,9 +120,10 @@ namespace DefaultNamespace
         void PlaceWall()
         {
             Vector3 placementPosition = previewWall.transform.position;
+            Quaternion placementRotation = previewWall.transform.rotation;
             if (!occupiedTiles.Contains(placementPosition))
             {
-                Instantiate(wallPrefab, placementPosition, Quaternion.identity);
+                Instantiate(wallPrefab, placementPosition, placementRotation);
                 occupiedTiles.Add(placementPosition);
             }
         }
