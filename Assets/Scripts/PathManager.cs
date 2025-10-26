@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Unity.AI.Navigation;
 using UnityEditor.AI;
 using UnityEngine;
@@ -21,6 +22,7 @@ public class PathManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        PathSmoothing();
         agent.SetDestination(targetPositon);
     }
 
@@ -38,5 +40,18 @@ public class PathManager : MonoBehaviour
         yield return new WaitForEndOfFrame();
         
         agent.SetDestination(targetPositon);
+    }
+
+    void PathSmoothing()
+    {
+        Vector3 agentCurrentPosition = agent.transform.position;
+        Vector3 agentNextPosition = agent.nextPosition;
+        Debug.Log("Current Next Position: " + agentNextPosition);
+        agent.nextPosition = new Vector3(
+                                        Mathf.Lerp(agentCurrentPosition.x, agentNextPosition.x, 0.65f),  
+                                        Mathf.Lerp(agentCurrentPosition.y, agentNextPosition.y, 0.65f), 
+                                        Mathf.Lerp(agentCurrentPosition.z, agentNextPosition.z, 0.65f));
+        
+        Debug.Log("New Next Position: " + agent.nextPosition);
     }
 }

@@ -107,7 +107,6 @@ namespace DefaultNamespace
                 
                 previewWall.transform.position = snappedPosition;
                 Vector3 nextTileRight = previewWall.transform.position + new Vector3(cellSize, 0, 0);
-                Debug.Log("Tile to right: " + nextTileRight);
                 
                 if (occupiedTiles.Contains(snappedPosition))
                 {
