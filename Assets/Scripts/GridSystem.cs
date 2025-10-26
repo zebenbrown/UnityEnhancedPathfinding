@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.AI.Navigation;
 using Unity.VisualScripting;
@@ -20,14 +21,15 @@ namespace DefaultNamespace
         
         private NavMeshSurface surface;
 
-        void Start()
+        private void Awake()
         {
+            surface = GetComponent<NavMeshSurface>();
+            surface.collectObjects = CollectObjects.Children;
+            surface.RemoveData();
             for (int x = 0; x < gridSize.x; x++)
             {
                 for (int z = 0; z < gridSize.z; z++)
                 {
-                    surface = GetComponent<NavMeshSurface>();
-                    surface.collectObjects = CollectObjects.Children;
                     
                     Vector3 spawnPosition = new Vector3(x *(1 + cellPadding.x) * cellSize, 0, z * (1 + cellPadding.z) * cellSize);
                     Instantiate(tilePrefab, spawnPosition, Quaternion.identity, transform);
@@ -35,7 +37,10 @@ namespace DefaultNamespace
             }
             
             surface.BuildNavMesh();
-            
+        }
+
+        void Start()
+        {
             CreatePreviewWall();
         }
 
