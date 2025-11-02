@@ -15,7 +15,10 @@ namespace DefaultNamespace
         [SerializeField] private Material[] materials;
         private GameObject previewWall;
         private bool isVerticalWall = false;
-
+        public bool IsPositionWalkable(Vector3 position)
+        {
+            return !occupiedTiles.Contains(position);
+        }
         void Start()
         {
             for (int x = 0; x < gridSize.x; x++)
