@@ -51,7 +51,7 @@ public class Pathfinding : MonoBehaviour
     private bool IsWalkable(Vector2Int position)
     {
         Vector3 tilePos = new Vector3(position.x, 0, position.y);
-        return !gridSystem.IsPositionWalkable.Contains(tilePos); 
+        return !gridSystem.IsPositionWalkable(tilePos);
     }
     
 
