@@ -18,18 +18,15 @@ namespace DefaultNamespace
         [SerializeField] private Material[] materials;
         private GameObject previewWall;
         private bool isVerticalWall = false;
-<<<<<<< HEAD
         public bool IsPositionWalkable(Vector3 position)
         {
             return !occupiedTiles.Contains(position);
         }
-        void Start()
-=======
         
         private NavMeshSurface surface;
 
         private void Awake()
->>>>>>> 2ae7a96cb0fc2daf952d1e30dc81932c2d51815f
+
         {
             surface = GetComponent<NavMeshSurface>();
             surface.collectObjects = CollectObjects.Children;
