@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using Unity.AI.Navigation;
 using Unity.VisualScripting;
+using UnityEngine.AI;
 using UnityEngine;
 
 namespace DefaultNamespace
@@ -15,21 +18,37 @@ namespace DefaultNamespace
         [SerializeField] private Material[] materials;
         private GameObject previewWall;
         private bool isVerticalWall = false;
+<<<<<<< HEAD
         public bool IsPositionWalkable(Vector3 position)
         {
             return !occupiedTiles.Contains(position);
         }
         void Start()
+=======
+        
+        private NavMeshSurface surface;
+
+        private void Awake()
+>>>>>>> 2ae7a96cb0fc2daf952d1e30dc81932c2d51815f
         {
+            surface = GetComponent<NavMeshSurface>();
+            surface.collectObjects = CollectObjects.Children;
+            surface.RemoveData();
             for (int x = 0; x < gridSize.x; x++)
             {
                 for (int z = 0; z < gridSize.z; z++)
                 {
+                    
                     Vector3 spawnPosition = new Vector3(x *(1 + cellPadding.x) * cellSize, 0, z * (1 + cellPadding.z) * cellSize);
-                    Instantiate(tilePrefab, spawnPosition, Quaternion.identity);
+                    Instantiate(tilePrefab, spawnPosition, Quaternion.identity, transform);
                 }
             }
             
+            surface.BuildNavMesh();
+        }
+
+        void Start()
+        {
             CreatePreviewWall();
         }
 
@@ -96,7 +115,6 @@ namespace DefaultNamespace
                 
                 previewWall.transform.position = snappedPosition;
                 Vector3 nextTileRight = previewWall.transform.position + new Vector3(cellSize, 0, 0);
-                Debug.Log("Tile to right: " + nextTileRight);
                 
                 if (occupiedTiles.Contains(snappedPosition))
                 {
