@@ -1,6 +1,7 @@
 using System; 
 using DefaultNamespace;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -12,19 +13,36 @@ public class Cluster
 }
 
 
-public class HierarchicalPathfinding : MonoBehaviour
+public class Pathfinding : MonoBehaviour
 {
     public int clusterSize = 32;
     private Cluster[,] clusters;
     private GridSystem gridSystem;
+    [SerializeField] private GameObject agent;
+    [SerializeField] private Vector2Int start;
+    [SerializeField] private Vector2Int end;
+    private bool shouldMove = false;
 
     private void Awake()
     {
-        gridSystem = FindObjectOfType<GridSystem>();
+        
+        gridSystem = GetComponent<GridSystem>();
         InitializeClusters();
         PrecomputePaths();
-        
+    }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            shouldMove = true;
+        }
+
+        if (shouldMove)
+        {
+            List<Vector2Int> path = FindPath(start, end);
+            agent.transform.position = new Vector3(path[0].x, 0, path[0].y);  
+        }
     }
 
 
@@ -33,7 +51,7 @@ public class HierarchicalPathfinding : MonoBehaviour
     private bool IsWalkable(Vector2Int position)
     {
         Vector3 tilePos = new Vector3(position.x, 0, position.y);
-        return !gridSystem.IsPositionWalkable(tilePos); 
+        return !gridSystem.IsPositionWalkable.Contains(tilePos); 
     }
     
 
@@ -147,14 +165,14 @@ public class HierarchicalPathfinding : MonoBehaviour
 
         // 3. Low-level pathfinding within each cluster
         List<Vector2Int> finalPath = new List<Vector2Int>();
-        if (startCluster == endCluster)
+        if (startCluster != endCluster)
         {
             // A* Algorithm (converted from your C++ code)
             Dictionary<Vector2Int, Vector2Int> cameFrom = new Dictionary<Vector2Int, Vector2Int>();
             Dictionary<Vector2Int, float> gScore = new Dictionary<Vector2Int, float>();
             Dictionary<Vector2Int, float> fScore = new Dictionary<Vector2Int, float>();
 
-            List<Vector2Int> openSet = new List<Vector2Int>();
+            HashSet<Vector2Int> openSet = new HashSet<Vector2Int>();
             HashSet<Vector2Int> closedSet = new HashSet<Vector2Int>();
 
             // Initialize
@@ -165,14 +183,15 @@ public class HierarchicalPathfinding : MonoBehaviour
             while (openSet.Count > 0)
             {
                 // Find node with lowest fScore
-                Vector2Int current = openSet[0];
+                Vector2Int current = openSet.First();
                 float lowestF = fScore[current];
 
-                for (int i = 1; i < openSet.Count; i++)
+
+                foreach (Vector2Int node in openSet)
                 {
-                    if (fScore[openSet[i]] < lowestF)
+                    if (fScore[node] < lowestF)
                     {
-                        current = openSet[i];
+                        current = node;
                         lowestF = fScore[current];
                     }
                 }
