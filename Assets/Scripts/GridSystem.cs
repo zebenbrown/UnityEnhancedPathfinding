@@ -145,5 +145,19 @@ namespace DefaultNamespace
                 occupiedTiles.Add(placementPosition);
             }
         }
+        public Vector3 GetGridSize()
+        {
+            return gridSize;
+        }
+
+        public float GetCellSize()
+        {
+            return cellSize;
+        }
+
+        public Vector3 GetCellPadding()
+        {
+            return cellPadding;
+        }
     }
 }

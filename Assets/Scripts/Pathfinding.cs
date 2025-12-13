@@ -20,6 +20,7 @@ public class Pathfinding : MonoBehaviour
     [SerializeField] private GameObject agent;
     [SerializeField] private Vector2Int start;
     [SerializeField] private Vector2Int end;
+    [SerializeField] private float moveSpeed = 5f;
 
     private List<Vector2Int> currentPath;
     private int currentPathIndex = 0;
@@ -30,8 +31,6 @@ public class Pathfinding : MonoBehaviour
     private int mapWidth;
     private int mapHeight;
 
-
-
     private void Awake()
     {
         gridSystem = GetComponent<GridSystem>();
@@ -39,7 +38,6 @@ public class Pathfinding : MonoBehaviour
         this.cellSize = gridSystem.GetCellSize();
         Vector3 cellPadding = gridSystem.GetCellPadding();
 
-        // Store these for use throughout the script
         this.cellPaddingX = cellPadding.x;
         this.cellPaddingZ = cellPadding.z;
         this.mapWidth = (int)gridSize.x;
@@ -71,39 +69,51 @@ public class Pathfinding : MonoBehaviour
         if (shouldMove && currentPath != null && currentPathIndex < currentPath.Count)
         {
             Vector2Int gridPos = currentPath[currentPathIndex];
-            agent.transform.position = GridToWorld(gridPos); 
-            currentPathIndex++;
+            Vector3 targetPos = GridToWorld(gridPos);
+            targetPos.y = 0.5f;
+            agent.transform.position = Vector3.MoveTowards(
+                agent.transform.position,
+                targetPos,
+                moveSpeed * Time.deltaTime
+            );
 
-            if (currentPathIndex >= currentPath.Count)
+            if (Vector3.Distance(agent.transform.position, targetPos) < 0.1f)
             {
-                shouldMove = false;
-                Debug.Log("Reached destination!");
+                currentPathIndex++;
+
+                if (currentPathIndex >= currentPath.Count)
+                {
+                    shouldMove = false;
+                    Debug.Log("Reached destination!");
+                }
             }
         }
     }
 
     private bool IsWalkable(Vector2Int position)
     {
-        if (position.x < 0 || position.x >= 256 ||
-            position.y < 0 || position.y >= 256)
+        if (position.x < 0 || position.x >= mapWidth ||
+            position.y < 0 || position.y >= mapHeight)
             return false;
 
         Vector3 tilePos = GridToWorld(position);
-        return gridSystem.IsPositionWalkable(tilePos);
+        bool walkable = gridSystem.IsPositionWalkable(tilePos);
+
+       
+        Debug.Log($"Checking position {position} -> World {tilePos} -> Walkable: {walkable}");
+
+        return walkable; 
     }
     private Vector3 GridToWorld(Vector2Int gridPos)
     {
         float worldX = gridPos.x * (1 + cellPaddingX) * cellSize;
         float worldZ = gridPos.y * (1 + cellPaddingZ) * cellSize;
 
-        return new Vector3(worldX, 0.5f, worldZ);
+        return new Vector3(worldX, 0, worldZ);  
     }
 
     private void InitializeClusters()
     {
-        int mapWidth = 256;
-        int mapHeight = 256;
-
         int numXClusters = Mathf.CeilToInt((float)mapWidth / clusterSize);
         int numYClusters = Mathf.CeilToInt((float)mapHeight / clusterSize);
 
@@ -128,15 +138,11 @@ public class Pathfinding : MonoBehaviour
 
     private void FindPortals(Cluster cluster)
     {
-        int mapWidth = 256;
-        int mapHeight = 256;
-
         List<Vector2Int> topEdge = new List<Vector2Int>();
         List<Vector2Int> bottomEdge = new List<Vector2Int>();
         List<Vector2Int> leftEdge = new List<Vector2Int>();
         List<Vector2Int> rightEdge = new List<Vector2Int>();
 
-        // Top edge
         for (int x = (int)cluster.bounds.x; x < (int)(cluster.bounds.x + cluster.bounds.width); x++)
         {
             int topY = (int)(cluster.bounds.y + cluster.bounds.height);
@@ -146,7 +152,6 @@ public class Pathfinding : MonoBehaviour
             if (IsWalkable(pos)) topEdge.Add(pos);
         }
 
-        // Bottom edge
         for (int x = (int)cluster.bounds.x; x < (int)(cluster.bounds.x + cluster.bounds.width); x++)
         {
             int bottomY = (int)cluster.bounds.y;
@@ -154,7 +159,6 @@ public class Pathfinding : MonoBehaviour
             if (IsWalkable(pos)) bottomEdge.Add(pos);
         }
 
-        // Left edge
         for (int y = (int)cluster.bounds.y; y < (int)(cluster.bounds.y + cluster.bounds.height); y++)
         {
             int leftX = (int)cluster.bounds.x;
@@ -162,7 +166,6 @@ public class Pathfinding : MonoBehaviour
             if (IsWalkable(pos)) leftEdge.Add(pos);
         }
 
-        // Right edge
         for (int y = (int)cluster.bounds.y; y < (int)(cluster.bounds.y + cluster.bounds.height); y++)
         {
             int rightX = (int)(cluster.bounds.x + cluster.bounds.width);
@@ -172,7 +175,6 @@ public class Pathfinding : MonoBehaviour
             if (IsWalkable(pos)) rightEdge.Add(pos);
         }
 
-        // Add limited portals from each edge
         AddLimitedPortals(cluster, topEdge);
         AddLimitedPortals(cluster, bottomEdge);
         AddLimitedPortals(cluster, leftEdge);
@@ -568,5 +570,26 @@ public class Pathfinding : MonoBehaviour
             return clusters[x, y];
 
         return null;
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (currentPath == null || currentPath.Count == 0) return;
+
+        Gizmos.color = Color.yellow;
+
+        for (int i = 0; i < currentPath.Count - 1; i++)
+        {
+            Vector3 startPos = GridToWorld(currentPath[i]);
+            Vector3 endPos = GridToWorld(currentPath[i + 1]);
+
+            Gizmos.DrawLine(startPos, endPos);
+            Gizmos.DrawSphere(startPos, 0.2f);
+        }
+
+        if (currentPath.Count > 0)
+        {
+            Gizmos.DrawSphere(GridToWorld(currentPath[currentPath.Count - 1]), 0.2f);
+        }
     }
 }
